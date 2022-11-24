@@ -36,7 +36,7 @@ export class PrismaPeopleRepository implements PeopleRepository, AuthenticationS
         return Either.Left(new PeopleAlreadyExistsError())
       }
       
-      throw "Unkown Error"
+      throw "Unknown Error"
     }
   }
 
