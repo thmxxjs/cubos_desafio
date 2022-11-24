@@ -1,0 +1,45 @@
+{
+  "$schema": "https://www.krakend.io/schema/v3.json",
+  "version": 3,
+  
+  "endpoints": [{
+    "endpoint": "/accounts",
+    "method": "GET",
+    "input_headers": ["x-user"],
+    "backend": [
+      {
+        "url_pattern": "/accounts",
+        "host": ["http://backend:3000"]
+      }
+    ],
+    "extra_config": {
+      "auth/validator": {
+          "alg": "RS256",
+          "disable_jwk_security": true,
+          "jwk_url": "http://backend:3000/auth/keys",
+          "propagate_claims": [
+              ["sub", "x-user"]
+          ]
+      }
+    }
+  }, {
+    "endpoint": "/login",
+    "method": "POST",
+    "backend": [
+      {
+        "url_pattern": "/login",
+        "host": ["http://backend:3000"]
+      }
+    ]
+  }],
+  "extra_config": {
+    "router": {
+      "error_body": {
+        "404": {
+          "msg": "Unknown endpoint",
+          "status": 404
+        }
+      }
+    }
+  }
+}

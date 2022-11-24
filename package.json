@@ -1,0 +1,40 @@
+{
+  "name": "testecubos",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npm run runmigrations && node dist/index.js",
+    "build": "tsc",
+    "dev": "ts-node-dev --respawn --transpile-only src/index",
+    "runmigrations": "npx prisma migrate dev --name init",
+    "generateauthkeypair": "openssl genrsa -out ./cert/cubos.pem 2048 && openssl rsa -in ./cert/cubos.pem -outform PEM -pubout -out ./cert/cubos_pub.pem",
+    "prepare": "npm run generateauthkeypair && mkdir /data/postgres"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^4.17.14",
+    "@types/node-jose": "^1.1.10",
+    "@typescript-eslint/eslint-plugin": "^5.43.0",
+    "@typescript-eslint/parser": "^5.43.0",
+    "eslint": "^8.28.0",
+    "prisma": "^4.6.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^4.9.3"
+  },
+  "dependencies": {
+    "@prisma/client": "^4.6.1",
+    "axios": "^1.2.0",
+    "body-parser": "^1.20.1",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.13.2",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "js-sha256": "^0.9.0",
+    "monet": "^0.9.3",
+    "node-jose": "^2.1.1",
+    "typescript-ioc": "^3.2.2"
+  }
+}
