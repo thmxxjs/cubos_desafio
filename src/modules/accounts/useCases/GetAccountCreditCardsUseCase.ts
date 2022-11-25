@@ -31,6 +31,10 @@ export class GetAccountCreditCardsUseCase {
       return Either.Left(userAccountOwnerShipVerification.left())
     }
 
+    if (!userAccountOwnerShipVerification.right()) {
+      return Either.Left(new UserIdNotAccountOwnerError())
+    }
+
     return this.accountsRepository.getAccountCreditCards(this.accountId)
   }
 

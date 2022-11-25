@@ -82,8 +82,6 @@ export class AccountsController {
       } catch (e) {
         response.status(500).send()
       }
-
-      response.json({})
     })
   }
 }
