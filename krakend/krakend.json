@@ -22,7 +22,71 @@
           ]
       }
     }
-  }, {
+  }, 
+  {
+    "endpoint": "/accounts",
+    "method": "POST",
+    "input_headers": ["x-user"],
+    "backend": [
+      {
+        "url_pattern": "/accounts",
+        "host": ["http://backend:3000"]
+      }
+    ],
+    "extra_config": {
+      "auth/validator": {
+          "alg": "RS256",
+          "disable_jwk_security": true,
+          "jwk_url": "http://backend:3000/auth/keys",
+          "propagate_claims": [
+              ["sub", "x-user"]
+          ]
+      }
+    }
+  },
+  {
+    "endpoint": "/accounts/{accountId}/cards",
+    "method": "POST",
+    "input_headers": ["x-user"],
+    "backend": [
+      {
+        "url_pattern": "/accounts/{accountId}/cards",
+        "host": ["http://backend:3000"]
+      }
+    ],
+    "extra_config": {
+      "auth/validator": {
+          "alg": "RS256",
+          "disable_jwk_security": true,
+          "jwk_url": "http://backend:3000/auth/keys",
+          "propagate_claims": [
+              ["sub", "x-user"]
+          ]
+      }
+    }
+  },
+  {
+    "endpoint": "/accounts/{accountId}/cards",
+    "method": "GET",
+    "input_headers": ["x-user"],
+    "backend": [
+      {
+        "url_pattern": "/accounts/{accountId}/cards",
+        "host": ["http://backend:3000"]
+      }
+    ],
+    "extra_config": {
+      "auth/validator": {
+          "alg": "RS256",
+          "disable_jwk_security": true,
+          "jwk_url": "http://backend:3000/auth/keys",
+          "propagate_claims": [
+              ["sub", "x-user"]
+          ]
+      }
+    }
+  },
+  {
     "endpoint": "/login",
     "method": "POST",
     "backend": [

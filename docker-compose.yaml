@@ -14,8 +14,8 @@ services:
     environment:
       DATABASE_URL: "postgresql://postgres:p0stgr3spass@db:5432/postgres?schema=public"
       COMPLIANCE_API_URL: "https://compliance-api.cubos.io"
-      COMPLIANCE_API_USER: "tafm@cin.ufpe.br"
-      COMPLIANCE_API_PASSWORD: "1xr2IZ3wS3vtGyIlD6Ew"
+      COMPLIANCE_API_USER: "user@email.com"
+      COMPLIANCE_API_PASSWORD: "123456"
       PORT: "3000"
   db:
     image: postgres

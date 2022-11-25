@@ -17,7 +17,7 @@ export class PeopleController {
           return
         }
 
-        response.json(execution.left().toJSON())
+        response.status(400).json(execution.left().toJSON())
       } catch (e) {
         response.status(500).send()
       }

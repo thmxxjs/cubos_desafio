@@ -21,6 +21,8 @@ export class InputAccountDTO {
 }
 
 export class InvalidPayloadError extends Error {
+  public status = 400
+
   constructor(erro: string) {
     super(erro)
   }

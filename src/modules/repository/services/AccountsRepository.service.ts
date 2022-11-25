@@ -1,8 +1,9 @@
-import { PrismaClient } from "@prisma/client";
+import { CardType, PrismaClient } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 import { Either } from "monet";
 import { Account } from "../../accounts/models/Account.model";
-import { AccountAlreadyExists, AccountsRepository } from "../../accounts/services/AccountsRepository.service";
+import { AccountCreditCard } from "../../accounts/models/AccountCreditCard.model";
+import { AccountAlreadyExists, AccountNotFoundError, AccountsRepository } from "../../accounts/services/AccountsRepository.service";
 
 const prisma = new PrismaClient()
 
@@ -55,5 +56,64 @@ export class PrismaAccountsRepository implements AccountsRepository {
     })
 
     return accounts
+  }
+
+  public async getAccountById(accountId: number): Promise<Either<AccountNotFoundError, Account>> {
+    const prismaAccount = await prisma.account.findFirst({
+      where: {
+        id: accountId
+      }
+    })
+
+    if (prismaAccount === null) {
+      return Either.left(new AccountNotFoundError())
+    }
+
+    const account = new Account(prismaAccount.ownerId, prismaAccount.branch, prismaAccount.account)
+
+    account.id = prismaAccount.id.toString()
+    account.createdAt = prismaAccount.createdAt
+    account.updatedAt = prismaAccount.updatedAt
+
+    return Either.right(account)
+  }
+
+  public async addCreditCardToAccount(creditCard: AccountCreditCard, accountId: number): Promise<AccountCreditCard> {
+    const prismaCreatedCard = await prisma.card.create({
+      data: {
+        type: creditCard.type === 'physical' ? CardType.physical : CardType.virtual,
+        number: creditCard.number,
+        cvv: creditCard.cvv,
+        accountId
+      }
+    })
+
+    const accountCreditCard = new AccountCreditCard(prismaCreatedCard.type, prismaCreatedCard.number, prismaCreatedCard.cvv)
+
+    accountCreditCard.id = prismaCreatedCard.id.toString()
+    accountCreditCard.createdAt = prismaCreatedCard.createdAt
+    accountCreditCard.updatedAt = prismaCreatedCard.updatedAt
+
+    return accountCreditCard
+  }
+
+  public async getAccountCreditCards(accountId: number): Promise<Either<AccountNotFoundError, AccountCreditCard[]>> {
+    const prismaCreditCards = await prisma.card.findMany({
+      where: {
+        accountId
+      }
+    })
+
+    const creditCards = prismaCreditCards.map(prismaCreatedCard => {
+      const accountCreditCard = new AccountCreditCard(prismaCreatedCard.type, prismaCreatedCard.number, prismaCreatedCard.cvv)
+
+      accountCreditCard.id = prismaCreatedCard.id.toString()
+      accountCreditCard.createdAt = prismaCreatedCard.createdAt
+      accountCreditCard.updatedAt = prismaCreatedCard.updatedAt
+  
+      return accountCreditCard
+    })
+
+    return Either.Right(creditCards)
   }
 }
