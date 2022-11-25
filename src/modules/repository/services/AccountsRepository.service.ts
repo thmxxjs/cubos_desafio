@@ -163,4 +163,24 @@ export class PrismaAccountsRepository implements AccountsRepository {
 
     return transactionPrisma
   }
+
+  public async getAccountBalance(accountId: number): Promise<number> {
+    const balance: {balance: string}[] = await prisma.$queryRaw`
+        SELECT
+        CASE
+           WHEN nullablebalance is NULL
+            THEN 0.0
+           ELSE nullablebalance
+       END balance
+        FROM (SELECT SUM("value") as nullablebalance FROM (
+          SELECT value FROM "Transaction" WHERE "accountId" = ${accountId}
+          UNION ALL
+          SELECT (value * -1) as value FROM "Transaction" WHERE "receiverAccountId" = ${accountId}
+        ) as aquery) as bquery
+      `
+
+      const numericBalance = parseFloat(balance[0].balance)
+
+      return parseFloat((numericBalance / 100).toFixed(2))
+  }
 }

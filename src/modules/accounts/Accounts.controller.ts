@@ -5,6 +5,7 @@ import "./services"
 import { CreateAccountUseCase, InputAccountDTO } from './useCases/CreateAccountUseCase'
 import { CreateCreditCardUseCase, InputCreditCardDTO } from './useCases/CreateCreditCardUseCase'
 import { CreateTransactionUseCase, InputTransactionDTO } from './useCases/CreateTransactionUseCase'
+import { GetAccountBalanceUseCase } from './useCases/GetAccountBalanceUseCase'
 import { GetAccountCreditCardsUseCase } from './useCases/GetAccountCreditCardsUseCase'
 import { ListUserAccountsUseCase } from './useCases/ListUserAccountsUseCase'
 
@@ -126,6 +127,28 @@ export class AccountsController {
         response.status(execution.left().status).json(execution.left().toJSON())
       } catch (e) {
         console.log(e)
+        response.status(500).send()
+      }
+    })
+
+    app.get('/accounts/:accountId/balance', async (request, response) => {
+      try {
+        const userId = request.headers["x-user"] as string
+        const accountId = request.params.accountId
+
+        const getAccountBalanceUseCase = new GetAccountBalanceUseCase(parseInt(accountId), parseInt(userId))
+
+        const execution = await getAccountBalanceUseCase.execute()
+
+        if (execution.isRight()) {
+          response.json({
+            balance: execution.right()
+          })
+          return
+        }
+
+        response.status(execution.left().status).json(execution.left().toJSON())
+      } catch (e) {
         response.status(500).send()
       }
     })

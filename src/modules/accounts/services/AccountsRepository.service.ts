@@ -10,6 +10,7 @@ export abstract class AccountsRepository {
   public abstract addCreditCardToAccount(creditCard: AccountCreditCard, accountId: number): Promise<AccountCreditCard>
   public abstract getAccountCreditCards(accountId: number): Promise<Either<AccountNotFoundError, AccountCreditCard[]>>
   public abstract createTransaction(transaction: Transaction, accountId: number): Promise<Either<InsuficientBalanceError, Transaction>>
+  public abstract getAccountBalance(accountId: number): Promise<number>
 }
 
 export class AccountAlreadyExists extends Error {
