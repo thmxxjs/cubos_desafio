@@ -1,8 +1,10 @@
 import { plainToClass } from 'class-transformer'
 import { Express } from 'express'
+import { TransactionType } from './models/Transaction.model'
 import "./services"
 import { CreateAccountUseCase, InputAccountDTO } from './useCases/CreateAccountUseCase'
 import { CreateCreditCardUseCase, InputCreditCardDTO } from './useCases/CreateCreditCardUseCase'
+import { CreateTransactionUseCase, InputTransactionDTO } from './useCases/CreateTransactionUseCase'
 import { GetAccountCreditCardsUseCase } from './useCases/GetAccountCreditCardsUseCase'
 import { ListUserAccountsUseCase } from './useCases/ListUserAccountsUseCase'
 
@@ -80,6 +82,50 @@ export class AccountsController {
 
         response.status(execution.left().status).json(execution.left().toJSON())
       } catch (e) {
+        response.status(500).send()
+      }
+    })
+
+    app.post('/accounts/:accountId/transactions', async (request, response) => {
+      try {
+        const payload = plainToClass(InputTransactionDTO, request.body)
+        const userId = request.headers["x-user"] as string
+        const accountId = request.params.accountId
+
+        const createTransactionUseCase = new CreateTransactionUseCase(payload, parseInt(accountId), parseInt(userId))
+       
+        const execution = await createTransactionUseCase.execute()
+
+        if (execution.isRight()) {
+          response.json(execution.right().toJSON())
+          return
+        }
+
+        response.status(execution.left().status).json(execution.left().toJSON())
+      } catch (e) {
+        response.status(500).send()
+      }
+    })
+
+    app.post('/accounts/:accountId/transactions/internal', async (request, response) => {
+      try {
+        const payload = plainToClass(InputTransactionDTO, request.body)
+        const userId = request.headers["x-user"] as string
+        const accountId = request.params.accountId
+
+        const createTransactionUseCase = new CreateTransactionUseCase(payload, parseInt(accountId), parseInt(userId), TransactionType.INTERNAL)
+       
+        const execution = await createTransactionUseCase.execute()
+
+        if (execution.isRight()) {
+          execution.right().value *= -1
+          response.json(execution.right().toJSON())
+          return
+        }
+
+        response.status(execution.left().status).json(execution.left().toJSON())
+      } catch (e) {
+        console.log(e)
         response.status(500).send()
       }
     })

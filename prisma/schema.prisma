@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["interactiveTransactions"]
 }
 
 datasource db {
@@ -11,25 +12,26 @@ datasource db {
 }
 
 model People {
-  id            Int                 @id @default(autoincrement())
-  document      String              @unique
-  name          String
-  password      String
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
-  accounts      Account[]
+  id                    Int                 @id @default(autoincrement())
+  document              String              @unique
+  name                  String
+  password              String
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  accounts              Account[]
 }
 
 model Account {
-  id            Int                 @id @default(autoincrement())
-  owner         People              @relation(fields: [ownerId], references: [id])
-  branch        String
-  account       String              @unique
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
-  ownerId       Int
-  cards         Card[]
-  transactions  Transaction[]
+  id                    Int                 @id @default(autoincrement())
+  owner                 People              @relation(fields: [ownerId], references: [id])
+  branch                String
+  account               String              @unique
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  ownerId               Int
+  cards                 Card[]
+  transactions          Transaction[]       @relation(name: "principal")
+  transactionsReceived  Transaction[]       @relation(name: "receiver")
 }
 
 enum CardType {
@@ -38,23 +40,25 @@ enum CardType {
 }
 
 model Card {
-  id          Int                 @id @default(autoincrement())
-  type        CardType
-  number      String
-  cvv         String
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
-  account     Account             @relation(fields: [accountId], references: [id])
-  accountId   Int
+  id                  Int                 @id @default(autoincrement())
+  type                CardType
+  number              String
+  cvv                 String
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  account             Account             @relation(fields: [accountId], references: [id])
+  accountId           Int
 }
 
 model Transaction {
-  id          Int                 @id @default(autoincrement())
-  value       Int
-  description String
-  reverted    Boolean             @default(false)
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
-  account     Account             @relation(fields: [accountId], references: [id])
-  accountId   Int
+  id                  Int                 @id @default(autoincrement())
+  value               Int
+  description         String
+  reverted            Boolean             @default(false)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  account             Account             @relation(fields: [accountId], references: [id], name: "principal")
+  accountId           Int
+  receiverAccount     Account?             @relation(fields: [receiverAccountId], references: [id], name: "receiver")
+  receiverAccountId   Int?
 }

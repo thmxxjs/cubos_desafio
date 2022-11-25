@@ -3,7 +3,8 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 import { Either } from "monet";
 import { Account } from "../../accounts/models/Account.model";
 import { AccountCreditCard } from "../../accounts/models/AccountCreditCard.model";
-import { AccountAlreadyExists, AccountNotFoundError, AccountsRepository } from "../../accounts/services/AccountsRepository.service";
+import { Transaction, TransactionType } from "../../accounts/models/Transaction.model";
+import { AccountAlreadyExists, AccountNotFoundError, AccountsRepository, InsuficientBalanceError } from "../../accounts/services/AccountsRepository.service";
 
 const prisma = new PrismaClient()
 
@@ -115,5 +116,51 @@ export class PrismaAccountsRepository implements AccountsRepository {
     })
 
     return Either.Right(creditCards)
+  }
+
+  public async createTransaction(transaction: Transaction, accountId: number): Promise<Either<InsuficientBalanceError, Transaction>> {
+    const transactionPrisma: Either<InsuficientBalanceError, Transaction> = await prisma.$transaction(async (tx) => {
+      const balance: {balance: string}[] = await tx.$queryRaw`
+        SELECT
+        CASE
+           WHEN nullablebalance is NULL
+            THEN 0.0
+           ELSE nullablebalance
+       END balance
+        FROM (SELECT SUM("value") as nullablebalance FROM (
+          SELECT value FROM "Transaction" WHERE "accountId" = ${accountId}
+          UNION ALL
+          SELECT (value * -1) as value FROM "Transaction" WHERE "receiverAccountId" = ${accountId}
+        ) as aquery) as bquery
+      `
+
+      const numericBalance = parseFloat(balance[0].balance)
+      const valueInCents = Math.round(transaction.value * 100) // converte para centavos antes de salvar no banco
+
+      if (numericBalance + valueInCents < 0) {
+        return Either.Left(new InsuficientBalanceError())
+      }
+
+      const createdTransactionPrisma = await tx.transaction.create({
+        data: {
+          value: valueInCents, 
+          description: transaction.description,
+          accountId,
+          receiverAccountId: transaction.type === TransactionType.INTERNAL ? transaction.receiverAccountId : null
+        }
+      })
+
+      const createdTransaction = new Transaction(transaction.value, transaction.description, transaction.type)
+
+      createdTransaction.id = createdTransactionPrisma.id.toString()
+      createdTransaction.value = parseFloat((createdTransactionPrisma.value / 100).toFixed(2)), // converte de centavos para reais antes de devolver o resultado
+      createdTransaction.description = createdTransactionPrisma.description
+      createdTransaction.createdAt = createdTransactionPrisma.createdAt
+      createdTransaction.updatedAt = createdTransactionPrisma.updatedAt
+
+      return Either.Right(createdTransaction)
+    })
+
+    return transactionPrisma
   }
 }

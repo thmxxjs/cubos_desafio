@@ -9,8 +9,8 @@ Repositório contendo a solução do meu teste para backend na Cubos, onde o obj
 - [X] POST /accounts/:accountId/cards
 - [X] GET /accounts/:accountId/cards
 - [ ] GET /cards
-- [ ] POST /accounts/:accountId/transactions
-- [ ] POST /accounts/:accountId/transactions/internal
+- [x] POST /accounts/:accountId/transactions
+- [x] POST /accounts/:accountId/transactions/internal
 - [ ] GET /accounts/:accountId/transactions
 - [ ] GET /accounts/:accountId/balance
 - [ ] POST /accounts/:accountId/transactions/:transactionId/revert
@@ -23,7 +23,7 @@ Repositório contendo a solução do meu teste para backend na Cubos, onde o obj
 
 * <b> Biblioteca de ORM:</b>
 
-	Como era de livre escolha, escolhi utilizar o prisma.io por nunca ter utilizado antes e aproveitar o teste para testar a solução e comparar com as bibliotecas sequelize e typeorm, se mostrou eficiente por hora
+	Como era de livre escolha, escolhi utilizar o prisma.io por nunca ter utilizado antes e aproveitar o desafio para testar a solução e comparar com as bibliotecas sequelize e typeorm, se mostrou eficiente por hora
 
 * <b> API gateway:</b>
 
