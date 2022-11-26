@@ -12,8 +12,8 @@ Repositório contendo a solução do meu teste para backend na Cubos, onde o obj
 - [x] POST /accounts/:accountId/transactions
 - [x] POST /accounts/:accountId/transactions/internal
 - [ ] GET /accounts/:accountId/transactions
-- [ ] GET /accounts/:accountId/balance
-- [ ] POST /accounts/:accountId/transactions/:transactionId/revert
+- [x] GET /accounts/:accountId/balance
+- [x] POST /accounts/:accountId/transactions/:transactionId/revert
 
 ## Detalhamento técnico
 

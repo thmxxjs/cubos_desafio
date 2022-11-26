@@ -9,7 +9,7 @@ export class AccountCreditCard {
     return {
       id: this.id,
       type: this.type,
-      number: this.number,
+      number: this.number.split(' ')[3],
       cvv: this.cvv,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt
