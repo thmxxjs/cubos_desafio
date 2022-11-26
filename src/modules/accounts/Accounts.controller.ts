@@ -8,6 +8,7 @@ import { CreateTransactionUseCase, InputTransactionDTO } from './useCases/Create
 import { GetAccountBalanceUseCase } from './useCases/GetAccountBalanceUseCase'
 import { GetAccountCreditCardsUseCase } from './useCases/GetAccountCreditCardsUseCase'
 import { ListUserAccountsUseCase } from './useCases/ListUserAccountsUseCase'
+import { RevertTransactionUseCase } from './useCases/RevertTransactionUseCase'
 
 export class AccountsController {
   static register (app: Express) {
@@ -139,6 +140,29 @@ export class AccountsController {
         const getAccountBalanceUseCase = new GetAccountBalanceUseCase(parseInt(accountId), parseInt(userId))
 
         const execution = await getAccountBalanceUseCase.execute()
+
+        if (execution.isRight()) {
+          response.json({
+            balance: execution.right()
+          })
+          return
+        }
+
+        response.status(execution.left().status).json(execution.left().toJSON())
+      } catch (e) {
+        response.status(500).send()
+      }
+    })
+
+    app.post('/accounts/:accountId/transactions/:transactionId/revert', async (request, response) => {
+      try {
+        const userId = request.headers["x-user"] as string
+        const accountId = request.params.accountId
+        const transactionId = request.params.transactionId
+
+        const revertTransactionUseCase = new RevertTransactionUseCase(parseInt(transactionId), parseInt(accountId), parseInt(userId))
+
+        const execution = await revertTransactionUseCase.execute()
 
         if (execution.isRight()) {
           response.json({

@@ -11,6 +11,7 @@ export abstract class AccountsRepository {
   public abstract getAccountCreditCards(accountId: number): Promise<Either<AccountNotFoundError, AccountCreditCard[]>>
   public abstract createTransaction(transaction: Transaction, accountId: number): Promise<Either<InsuficientBalanceError, Transaction>>
   public abstract getAccountBalance(accountId: number): Promise<number>
+  public abstract revertTransaction(transactionId: number): Promise<Either<TransactionAlreadyReverted | TransactionNotFoundError | InsuficientBalanceError, Transaction>>
 }
 
 export class AccountAlreadyExists extends Error {
@@ -41,6 +42,28 @@ export class InsuficientBalanceError extends Error {
   public toJSON() {
     return {
       'error': 'INSUFICIENT_BALANCE',
+      'data': null
+    }
+  }
+}
+
+export class TransactionAlreadyReverted extends Error {
+  public status = 400
+
+  public toJSON() {
+    return {
+      'error': 'TRANSACTION_ALREADY_REVERTED',
+      'data': null
+    }
+  }
+}
+
+export class TransactionNotFoundError extends Error {
+  public status = 400
+
+  public toJSON() {
+    return {
+      'error': 'TRANSACTION_NOT_FOUND',
       'data': null
     }
   }
