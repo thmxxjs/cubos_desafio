@@ -1,4 +1,4 @@
-export enum TransactionType {
+export enum TransactionOrigin {
   EXTERNAL = "external",
   INTERNAL = "internal"
 }
@@ -9,7 +9,7 @@ export class Transaction {
   public createdAt: Date | undefined
   public updatedAt: Date | undefined
 
-  constructor(public value: number, public description: string, public type: TransactionType) {}
+  constructor(public value: number, public description: string, public type: TransactionOrigin) {}
 
   public toJSON() {
     return {

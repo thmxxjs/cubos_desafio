@@ -8,10 +8,10 @@ Repositório contendo a solução do meu teste para backend na Cubos, onde o obj
 - [X] GET /accounts
 - [X] POST /accounts/:accountId/cards
 - [X] GET /accounts/:accountId/cards
-- [ ] GET /cards
+- [x] GET /cards
 - [x] POST /accounts/:accountId/transactions
 - [x] POST /accounts/:accountId/transactions/internal
-- [ ] GET /accounts/:accountId/transactions
+- [x] GET /accounts/:accountId/transactions
 - [x] GET /accounts/:accountId/balance
 - [x] POST /accounts/:accountId/transactions/:transactionId/revert
 
@@ -29,6 +29,8 @@ Repositório contendo a solução do meu teste para backend na Cubos, onde o obj
 
 	Embora não fosse uma exigência utilização de um API gateway, como o teste pedia implementação de autenticação e autorização, no lugar de criar um midlware express para validar o token nos endpoints protegidos foi utilizado o <i>krakend</i> como API gateway e a sua funcionalidade de validação de token a partir de chave pública (no formato Json Web Key) e passagem de campo de token em header para o backend, dessa forma a aplicação está desacoplada da validação de token e é possível desenvolver mais rapidamente simulando qualquer usuário apenas modificando o cabeçalho <b>x-user</b>
 
+* <b> Padrão Either:</b>
+	Um dos problemas em usar inversão de dependência em JavaScript/Typescript é a falta de poder de "forçar" os serviços que implementam as interfaces em tratar problemas conhecidos (não existe um throws, e ainda que existisse caiu em desuso no Java e já não tem a mesma rigidez no Kotlin). Com o uso de Either é possível tratar os caminhos de falhas de aplicação esperadas e forçar as implementações a alertar esses casos. 
 
 ## Como executar a aplicação
 

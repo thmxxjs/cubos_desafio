@@ -12,6 +12,18 @@ export abstract class AccountsRepository {
   public abstract createTransaction(transaction: Transaction, accountId: number): Promise<Either<InsuficientBalanceError, Transaction>>
   public abstract getAccountBalance(accountId: number): Promise<number>
   public abstract revertTransaction(transactionId: number): Promise<Either<TransactionAlreadyReverted | TransactionNotFoundError | InsuficientBalanceError, Transaction>>
+  public abstract getAllUserCards(userId: number, pagination: Pagination): Promise<AccountCreditCard[]>
+  public abstract getAllAccountTransactions(accountId: number, type: TransactionType | null, pagination: Pagination): Promise<Transaction[]>
+}
+
+export type Pagination = {
+  itemsPerPage: number,
+  currentPage: number
+}
+
+export enum TransactionType {
+  DEBIT = 'debit',
+  CREDIT = 'credit'
 }
 
 export class AccountAlreadyExists extends Error {

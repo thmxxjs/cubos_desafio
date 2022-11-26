@@ -1,7 +1,7 @@
 import { IsDefined, IsNumber, Min, validate } from "class-validator";
 import { Either } from "monet";
 import { Inject } from "typescript-ioc";
-import { Transaction, TransactionType } from "../models/Transaction.model";
+import { Transaction, TransactionOrigin } from "../models/Transaction.model";
 import { AccountNotFoundError, AccountsRepository } from "../services/AccountsRepository.service";
 
 // --- DTOs
@@ -9,24 +9,24 @@ import { AccountNotFoundError, AccountsRepository } from "../services/AccountsRe
 export class InputTransactionDTO {
   @IsDefined({
     message: 'Obrigatório fornecer o valor da transação',
-    groups: [TransactionType.EXTERNAL, TransactionType.INTERNAL]
+    groups: [TransactionOrigin.EXTERNAL, TransactionOrigin.INTERNAL]
   })
   @IsNumber()
   @Min(0, {
-    groups: [TransactionType.INTERNAL],
+    groups: [TransactionOrigin.INTERNAL],
     message: 'Valor da transferência não pode ser negativa'
   })
   public value!: number;
 
   @IsDefined({
     message: 'Descrição não fornecida',
-    groups: [TransactionType.EXTERNAL, TransactionType.INTERNAL]
+    groups: [TransactionOrigin.EXTERNAL, TransactionOrigin.INTERNAL]
   })
   public description!: string;
 
   @IsDefined({
     message: 'Conta de destino obrigatória',
-    groups: [TransactionType.INTERNAL]
+    groups: [TransactionOrigin.INTERNAL]
   })
   public receiverAccountId!: string
 }
@@ -65,7 +65,7 @@ export class CreateTransactionUseCase {
   @Inject
   private accountsRepository!: AccountsRepository
 
-  constructor(private transaction: InputTransactionDTO, private accountId: number, private userId: number, private transactionType: TransactionType = TransactionType.EXTERNAL) {}
+  constructor(private transaction: InputTransactionDTO, private accountId: number, private userId: number, private transactionType: TransactionOrigin = TransactionOrigin.EXTERNAL) {}
 
   public async execute(): Promise<Either<AccountNotFoundError | UserIdNotAccountOwnerError | InvalidPayloadError, Transaction>> {
     const validationErrors = await validate(this.transaction, {groups: [this.transactionType]})
@@ -85,7 +85,7 @@ export class CreateTransactionUseCase {
 
     const transactionToCreate = new Transaction(this.transaction.value, this.transaction.description, this.transactionType)
 
-    if (this.transactionType === TransactionType.INTERNAL) {
+    if (this.transactionType === TransactionOrigin.INTERNAL) {
       transactionToCreate.value *= -1
       transactionToCreate.receiverAccountId = parseInt(this.transaction.receiverAccountId)
     }

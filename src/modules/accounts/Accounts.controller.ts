@@ -1,12 +1,14 @@
 import { plainToClass } from 'class-transformer'
 import { Express } from 'express'
-import { TransactionType } from './models/Transaction.model'
+import { TransactionOrigin } from './models/Transaction.model'
 import "./services"
+import { TransactionType } from './services/AccountsRepository.service'
 import { CreateAccountUseCase, InputAccountDTO } from './useCases/CreateAccountUseCase'
 import { CreateCreditCardUseCase, InputCreditCardDTO } from './useCases/CreateCreditCardUseCase'
 import { CreateTransactionUseCase, InputTransactionDTO } from './useCases/CreateTransactionUseCase'
 import { GetAccountBalanceUseCase } from './useCases/GetAccountBalanceUseCase'
 import { GetAccountCreditCardsUseCase } from './useCases/GetAccountCreditCardsUseCase'
+import { GetAllAccountTransactionsUseCase } from './useCases/GetAllAccountTransactionsUseCase'
 import { ListUserAccountsUseCase } from './useCases/ListUserAccountsUseCase'
 import { RevertTransactionUseCase } from './useCases/RevertTransactionUseCase'
 
@@ -115,7 +117,7 @@ export class AccountsController {
         const userId = request.headers["x-user"] as string
         const accountId = request.params.accountId
 
-        const createTransactionUseCase = new CreateTransactionUseCase(payload, parseInt(accountId), parseInt(userId), TransactionType.INTERNAL)
+        const createTransactionUseCase = new CreateTransactionUseCase(payload, parseInt(accountId), parseInt(userId), TransactionOrigin.INTERNAL)
        
         const execution = await createTransactionUseCase.execute()
 
@@ -172,6 +174,30 @@ export class AccountsController {
         }
 
         response.status(execution.left().status).json(execution.left().toJSON())
+      } catch (e) {
+        response.status(500).send()
+      }
+    })
+
+    app.get('/accounts/:accountId/transactions',  async (request, response) => {
+      try {
+        const userId = request.headers["x-user"] as string
+        const accountId = request.params.accountId
+        const transactionType: TransactionType | null = (request.query.type as TransactionType | null) ? (request.query.type as TransactionType) : null
+
+        const getAllUserCardsUseCase = new GetAllAccountTransactionsUseCase(parseInt(accountId), parseInt(userId), transactionType, {
+          currentPage: parseInt((request.query.currentPage as string) || "1"),
+          itemsPerPage: parseInt((request.query.itemsPerPage as string) || "10"),
+        })
+
+        const execution = await getAllUserCardsUseCase.execute()
+
+        if (execution.isRight()) {
+          response.json(execution.right().toJSON())
+          return
+        }
+
+        response.status(400).send()
       } catch (e) {
         response.status(500).send()
       }

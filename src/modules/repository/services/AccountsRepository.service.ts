@@ -3,8 +3,8 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 import { Either } from "monet";
 import { Account } from "../../accounts/models/Account.model";
 import { AccountCreditCard } from "../../accounts/models/AccountCreditCard.model";
-import { Transaction, TransactionType } from "../../accounts/models/Transaction.model";
-import { AccountAlreadyExists, AccountNotFoundError, AccountsRepository, InsuficientBalanceError, TransactionAlreadyReverted, TransactionNotFoundError } from "../../accounts/services/AccountsRepository.service";
+import { Transaction, TransactionOrigin } from "../../accounts/models/Transaction.model";
+import { AccountAlreadyExists, AccountNotFoundError, AccountsRepository, InsuficientBalanceError, Pagination, TransactionAlreadyReverted, TransactionNotFoundError, TransactionType } from "../../accounts/services/AccountsRepository.service";
 
 const prisma = new PrismaClient()
 
@@ -153,7 +153,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
         value: valueInCents, 
         description: transaction.description,
         accountId,
-        receiverAccountId: transaction.type === TransactionType.INTERNAL ? transaction.receiverAccountId : null
+        receiverAccountId: transaction.type === TransactionOrigin.INTERNAL ? transaction.receiverAccountId : null
       }
     })
 
@@ -214,11 +214,11 @@ export class PrismaAccountsRepository implements AccountsRepository {
         }
       })
 
-      let transactionType = TransactionType.EXTERNAL
+      let transactionType = TransactionOrigin.EXTERNAL
       let transactionDescription = "Estorno de cobrança indevida."
 
       if (transaction.receiverAccountId !== null) {
-        transactionType = TransactionType.INTERNAL
+        transactionType = TransactionOrigin.INTERNAL
         transactionDescription = "Estorno de transferência."
       }
 
@@ -229,5 +229,59 @@ export class PrismaAccountsRepository implements AccountsRepository {
     })
 
     return transactionPrisma
+  }
+
+  public async getAllUserCards(userId: number, pagination: { itemsPerPage: number; currentPage: number; }): Promise<AccountCreditCard[]> {
+    const prismaCreditCards = await prisma.card.findMany({
+      where: {
+        account: {
+          ownerId: userId
+        }
+      },
+      skip: pagination.itemsPerPage * (pagination.currentPage - 1),
+      take: pagination.itemsPerPage
+    })
+
+    const creditCards = prismaCreditCards.map(prismaCreatedCard => {
+      const accountCreditCard = new AccountCreditCard(prismaCreatedCard.type, prismaCreatedCard.number, prismaCreatedCard.cvv)
+
+      accountCreditCard.id = prismaCreatedCard.id.toString()
+      accountCreditCard.createdAt = prismaCreatedCard.createdAt
+      accountCreditCard.updatedAt = prismaCreatedCard.updatedAt
+  
+      return accountCreditCard
+    })
+
+    return creditCards
+  }
+
+  public async getAllAccountTransactions(accountId: number, type: TransactionType, pagination: Pagination): Promise<Transaction[]> {
+    const prismaTransactions = await prisma.transaction.findMany({
+      where: {
+        AND: {
+          account: {
+            id: accountId
+          },
+          value: {
+            gte: type === TransactionType.CREDIT ? 0 : undefined,
+            lt: type === TransactionType.DEBIT ? 0 : undefined,
+          }
+        }
+      },
+      skip: pagination.itemsPerPage * (pagination.currentPage - 1),
+      take: pagination.itemsPerPage
+    })
+
+    const transactions = prismaTransactions.map(prismaTransaction => {
+      const transaction = new Transaction(parseFloat((prismaTransaction.value / 100).toFixed(2)) , prismaTransaction.description, prismaTransaction.receiverAccountId === null ? TransactionOrigin.EXTERNAL : TransactionOrigin.INTERNAL)
+
+      transaction.id = prismaTransaction.id.toString()
+      transaction.createdAt = prismaTransaction.createdAt
+      transaction.updatedAt = prismaTransaction.updatedAt
+
+      return transaction
+    })
+    
+    return transactions
   }
 }
