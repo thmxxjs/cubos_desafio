@@ -8,9 +8,9 @@
     "start": "npm run runmigrations && node dist/index.js",
     "build": "tsc",
     "dev": "ts-node-dev --respawn --transpile-only src/index",
-    "runmigrations": "npx prisma migrate dev --name init",
+    "runmigrations": "npx prisma migrate deploy",
     "generateauthkeypair": "openssl genrsa -out ./cert/cubos.pem 2048 && openssl rsa -in ./cert/cubos.pem -outform PEM -pubout -out ./cert/cubos_pub.pem",
-    "prepare": "npm run generateauthkeypair && mkdir /data/postgres"
+    "prepare": "npm run generateauthkeypair && mkdir -p /data/postgres"
   },
   "author": "",
   "license": "ISC",

@@ -9,7 +9,8 @@
     "backend": [
       {
         "url_pattern": "/accounts",
-        "host": ["http://backend:3000"]
+        "host": ["http://backend:3000"],
+        "is_collection": true
       }
     ],
     "extra_config": {
@@ -26,7 +27,8 @@
   {
     "endpoint": "/accounts",
     "method": "POST",
-    "input_headers": ["x-user"],
+    "input_headers": ["x-user", "Content-Type"],
+    "output_encoding": "no-op",
     "backend": [
       {
         "url_pattern": "/accounts",
@@ -47,10 +49,12 @@
   {
     "endpoint": "/accounts/{accountId}/cards",
     "method": "POST",
-    "input_headers": ["x-user"],
+    "input_headers": ["x-user", "Content-Type"],
+    "output_encoding": "no-op",
     "backend": [
       {
         "url_pattern": "/accounts/{accountId}/cards",
+        "method": "POST",
         "host": ["http://backend:3000"]
       }
     ],
@@ -72,7 +76,8 @@
     "backend": [
       {
         "url_pattern": "/accounts/{accountId}/cards",
-        "host": ["http://backend:3000"]
+        "host": ["http://backend:3000"],
+        "is_collection": true
       }
     ],
     "extra_config": {
@@ -89,7 +94,8 @@
   {
     "endpoint": "/accounts/{accountId}/transactions",
     "method": "POST",
-    "input_headers": ["x-user"],
+    "input_headers": ["x-user", "Content-Type"],
+    "output_encoding": "no-op",
     "backend": [
       {
         "url_pattern": "/accounts/{accountId}/transactions",
@@ -110,11 +116,13 @@
   {
     "endpoint": "/accounts/{accountId}/transactions/internal",
     "method": "POST",
-    "input_headers": ["x-user"],
+    "input_headers": ["x-user", "Content-Type"],
+    "output_encoding": "no-op",
     "backend": [
       {
         "url_pattern": "/accounts/{accountId}/transactions/internal",
-        "host": ["http://backend:3000"]
+        "host": ["http://backend:3000"],
+        "method": "POST"
       }
     ],
     "extra_config": {
@@ -152,7 +160,8 @@
   {
     "endpoint": "/accounts/{accountId}/transactions/{transactionId}/revert",
     "method": "POST",
-    "input_headers": ["x-user"],
+    "input_headers": ["x-user", "Content-Type"],
+    "output_encoding": "no-op",
     "backend": [
       {
         "url_pattern": "/accounts/{accountId}/transactions/{transactionId}/revert",
@@ -215,6 +224,7 @@
   {
     "endpoint": "/login",
     "method": "POST",
+    "output_encoding": "no-op",
     "backend": [
       {
         "url_pattern": "/login",
