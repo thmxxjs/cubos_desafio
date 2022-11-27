@@ -61,3 +61,14 @@ O passo a passo para rodar em modo desenvolvimento:
 * rodar as migrations com `npm run runmigrations`
 * gerar um par de chaves pública e privada para a parte de autenticação com o comando `npm run generateauthkeypair`
 * executar a aplicação `npm run dev`
+
+### Testes
+
+Existem alguns testes de integração feitos que podem ser executados desde que haja um banco de teste para isso, o padrão escolhido de nomenclatura dos arquivos foi Teste.i.spec.ts onde o i representa integração e tem arquivo de configuração próprio, pois talvez apenas nos testes de integração por exemplo talvez seja interessante limpar o banco entre os testes
+
+Passo a passo para executar os testes
+
+* criar um banco de testes diferente do banco de desenvolvimento, pois este terá as tabelas limpas antes de cada teste
+* criar um arquivo .env.test seguindo o modelo .env.example
+* rodar as migrations nesse novo banco de teste com o comando ```npm run runmigrationstest``` (obs. no package.json se for utilizar um banco com nome diferente de "test" alterar antes de rodar as migrations, esse problema existe pois o prisma carrega automaticamente o arquivo .env e não tem configuração para setar o path do .env)
+* executar o comando ```npm run test:integration```

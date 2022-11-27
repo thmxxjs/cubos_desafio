@@ -16,7 +16,7 @@ export class PeopleInputDTO {
   public name!: string;
 
   @IsDefined()
-  @Matches(/^[0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2}$/, {
+  @Matches(/^([0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2})|([0-9]{2}.[0-9]{3}.[0-9]{3}\/[0-9]{4}-[0-9]{2})$/, {
     message: 'Documento inválido',
   })
   public document!: string;

@@ -34,6 +34,11 @@ export class CubosDocumentValidator implements DocumentValidatorService {
       return validationResult.data.data.status === 1
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
+      console.log(e)
+      if (e.response.status === 400) {
+        return false
+      }
+
       const unexpectedErrorOccurred = e.response.status !== 401
     
       if (unexpectedErrorOccurred) {

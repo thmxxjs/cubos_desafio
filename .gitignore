@@ -8,3 +8,4 @@ cert/*
 !cert/.gitkeep
 krakend/krakend
 data
+.env.test
